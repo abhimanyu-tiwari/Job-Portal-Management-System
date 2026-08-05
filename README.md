@@ -201,4 +201,8 @@ Java Full Stack Developer
 
 If you found this project useful, please consider giving it a ⭐ on GitHub.
 
+<<<<<<< HEAD
 Thank you for visiting this repository!
+=======
+Thank you for visiting this repository!
+>>>>>>> 89455c10d9bcf2c108a29e559a4dfb9c8e9e816f
