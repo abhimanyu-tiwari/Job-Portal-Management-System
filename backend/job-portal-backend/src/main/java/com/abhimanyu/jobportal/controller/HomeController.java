@@ -10,4 +10,12 @@ public class HomeController {
     public String home() {
         return "Job Portal Backend is Running Successfully 🚀";
     }
+    @GetMapping("/about")
+    public String about() {
+        return "This is the Job Portal Backend application.";
+    }
+    @GetMapping("/version")
+    public String version() {
+        return "Job Portal Backend v1.0.0";
+    }
 }
