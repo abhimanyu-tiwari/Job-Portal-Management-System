@@ -2,10 +2,8 @@ package com.abhimanyu.jobportal.service;
 
 import com.abhimanyu.jobportal.dto.UserRequestDTO;
 import com.abhimanyu.jobportal.dto.UserResponseDTO;
-import com.abhimanyu.jobportal.entity.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
 
@@ -13,9 +11,9 @@ public interface UserService {
 
     List<UserResponseDTO> getAllUsers();
 
-Optional<UserResponseDTO> getUserById(Long id);
+    UserResponseDTO getUserById(Long id);
 
     void deleteUser(Long id);
 
-    User updateUser(Long id, User user);
+    UserResponseDTO updateUser(Long id, UserRequestDTO userRequestDTO);
 }

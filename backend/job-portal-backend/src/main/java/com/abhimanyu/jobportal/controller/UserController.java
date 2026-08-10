@@ -2,8 +2,10 @@ package com.abhimanyu.jobportal.controller;
 
 import com.abhimanyu.jobportal.dto.UserRequestDTO;
 import com.abhimanyu.jobportal.dto.UserResponseDTO;
-import com.abhimanyu.jobportal.entity.User;
+
 import com.abhimanyu.jobportal.service.UserService;
+
+import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -34,13 +35,13 @@ public class UserController {
 
     @PostMapping
     public UserResponseDTO createUser(
-            @RequestBody UserRequestDTO userRequestDTO) {
+           @Valid @RequestBody UserRequestDTO userRequestDTO) {
 
         return userService.saveUser(userRequestDTO);
     }
 
     @GetMapping("/{id}")
-    public Optional<UserResponseDTO> getUserById(
+    public UserResponseDTO getUserById(
             @PathVariable Long id) {
 
         return userService.getUserById(id);
@@ -53,10 +54,10 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public User updateUser(
+    public UserResponseDTO updateUser(
             @PathVariable Long id,
-            @RequestBody User user) {
+            @Valid @RequestBody UserRequestDTO userRequestDTO) {
 
-        return userService.updateUser(id, user);
+        return userService.updateUser(id, userRequestDTO);
     }
 }
