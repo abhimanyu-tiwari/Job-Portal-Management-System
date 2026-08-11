@@ -49,4 +49,17 @@ public class GlobalExceptionHandler {
 
         return response;
     }
+
+    @ExceptionHandler(JobNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, Object> handleJobNotFoundException(
+            JobNotFoundException ex) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("status", 404);
+        response.put("message", ex.getMessage());
+
+        return response;
+    }
 }

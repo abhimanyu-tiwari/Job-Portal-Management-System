@@ -1,46 +1,17 @@
-package com.abhimanyu.jobportal.entity;
+package com.abhimanyu.jobportal.dto;
 
-import jakarta.persistence.*;
+public class JobResponseDTO {
 
-@Entity
-@Table(name = "jobs")
-public class Job {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String title;
-
-    @Column(nullable = false)
     private String description;
-
-    @Column(nullable = false)
     private String companyName;
-
-    @Column(nullable = false)
     private String location;
-
-    @Column(nullable = false)
     private String salary;
-
-    @Column(nullable = false)
     private String jobType;
-
-    @Column(nullable = false)
     private String skills;
+    private Long userId;
 
-    // JOB POSTED BY USER
-    @ManyToOne
-    @JoinColumn(name = "posted_by")
-    private User postedBy;
-
-    // Default Constructor
-    public Job() {
-    }
-
-    // Getters and Setters
 
     public Long getId() {
         return id;
@@ -106,11 +77,11 @@ public class Job {
         this.skills = skills;
     }
 
-    public User getPostedBy() {
-        return postedBy;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setPostedBy(User postedBy) {
-        this.postedBy = postedBy;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

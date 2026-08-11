@@ -99,6 +99,7 @@ public UserResponseDTO updateUser(Long id, UserRequestDTO dto) {
 
     private UserResponseDTO convertToResponseDTO(User user) {
 
+        
         UserResponseDTO response = new UserResponseDTO();
 
         response.setId(user.getId());

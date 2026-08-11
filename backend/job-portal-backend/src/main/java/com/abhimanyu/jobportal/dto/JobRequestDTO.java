@@ -1,54 +1,33 @@
-package com.abhimanyu.jobportal.entity;
+package com.abhimanyu.jobportal.dto;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-@Entity
-@Table(name = "jobs")
-public class Job {
+public class JobRequestDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
+    @NotBlank(message = "Job title is required")
     private String title;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Job description is required")
     private String description;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Company name is required")
     private String companyName;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Location is required")
     private String location;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Salary is required")
     private String salary;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Job type is required")
     private String jobType;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Skills are required")
     private String skills;
 
-    // JOB POSTED BY USER
-    @ManyToOne
-    @JoinColumn(name = "posted_by")
-    private User postedBy;
-
-    // Default Constructor
-    public Job() {
-    }
-
-    // Getters and Setters
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @NotNull(message = "User ID is required")
+    private Long userId;
 
     public String getTitle() {
         return title;
@@ -106,11 +85,11 @@ public class Job {
         this.skills = skills;
     }
 
-    public User getPostedBy() {
-        return postedBy;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setPostedBy(User postedBy) {
-        this.postedBy = postedBy;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }
