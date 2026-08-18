@@ -2,7 +2,11 @@ package com.abhimanyu.jobportal.entity;
 
 import java.time.LocalDateTime;
 
+import com.abhimanyu.jobportal.enums.ApplicationStatus;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,18 +22,19 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // User who applied
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
     @ManyToOne
     @JoinColumn(name = "job_id", nullable = false)
     private Job job;
 
-    private String status;
+    // Application Status
+    @Enumerated(EnumType.STRING)
+    private ApplicationStatus status;
 
     private LocalDateTime appliedAt;
-
     public Application() {
     }
     public Long getId() {
@@ -56,11 +61,11 @@ public class Application {
         this.job = job;
     }
 
-    public String getStatus() {
+    public ApplicationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ApplicationStatus status) {
         this.status = status;
     }
 
