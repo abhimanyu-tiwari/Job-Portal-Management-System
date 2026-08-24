@@ -8,19 +8,32 @@ import com.abhimanyu.jobportal.exception.UserNotFoundException;
 import com.abhimanyu.jobportal.repository.UserRepository;
 import com.abhimanyu.jobportal.service.UserService;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    // =========================
+    // CONSTRUCTOR
+    // =========================
+
+    public UserServiceImpl(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
+
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
+
+    // =========================
+    // CREATE USER
+    // =========================
 
     @Override
     public UserResponseDTO saveUser(UserRequestDTO dto) {
@@ -30,7 +43,12 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
+
+        // Password encryption
+        user.setPassword(
+                passwordEncoder.encode(dto.getPassword())
+        );
+
         user.setPhone(dto.getPhone());
         user.setRole(Role.valueOf(dto.getRole()));
 
@@ -38,6 +56,10 @@ public class UserServiceImpl implements UserService {
 
         return convertToResponseDTO(savedUser);
     }
+
+    // =========================
+    // GET ALL USERS
+    // =========================
 
     @Override
     public List<UserResponseDTO> getAllUsers() {
@@ -47,6 +69,10 @@ public class UserServiceImpl implements UserService {
                 .map(this::convertToResponseDTO)
                 .toList();
     }
+
+    // =========================
+    // GET USER BY ID
+    // =========================
 
     @Override
     public UserResponseDTO getUserById(Long id) {
@@ -61,6 +87,10 @@ public class UserServiceImpl implements UserService {
         return convertToResponseDTO(user);
     }
 
+    // =========================
+    // DELETE USER
+    // =========================
+
     @Override
     public void deleteUser(Long id) {
 
@@ -74,33 +104,49 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
-   @Override
-public UserResponseDTO updateUser(Long id, UserRequestDTO dto) {
+    // =========================
+    // UPDATE USER
+    // =========================
 
-    User existingUser = userRepository.findById(id)
-            .orElseThrow(() ->
-                    new UserNotFoundException(
-                            "User not found with id: " + id
-                    )
-            );
+    @Override
+    public UserResponseDTO updateUser(
+            Long id,
+            UserRequestDTO dto) {
 
-    existingUser.setFirstName(dto.getFirstName());
-    existingUser.setLastName(dto.getLastName());
-    existingUser.setEmail(dto.getEmail());
-    existingUser.setPassword(dto.getPassword());
-    existingUser.setPhone(dto.getPhone());
-    existingUser.setRole(Role.valueOf(dto.getRole()));
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with id: " + id
+                        )
+                );
 
-    User updatedUser = userRepository.save(existingUser);
+        existingUser.setFirstName(dto.getFirstName());
+        existingUser.setLastName(dto.getLastName());
+        existingUser.setEmail(dto.getEmail());
 
-    return convertToResponseDTO(updatedUser);
-}
+        // Password encryption
+        existingUser.setPassword(
+                passwordEncoder.encode(dto.getPassword())
+        );
 
+        existingUser.setPhone(dto.getPhone());
+        existingUser.setRole(Role.valueOf(dto.getRole()));
 
-    private UserResponseDTO convertToResponseDTO(User user) {
+        User updatedUser =
+                userRepository.save(existingUser);
 
-        
-        UserResponseDTO response = new UserResponseDTO();
+        return convertToResponseDTO(updatedUser);
+    }
+
+    // =========================
+    // ENTITY -> RESPONSE DTO
+    // =========================
+
+    private UserResponseDTO convertToResponseDTO(
+            User user) {
+
+        UserResponseDTO response =
+                new UserResponseDTO();
 
         response.setId(user.getId());
         response.setFirstName(user.getFirstName());
@@ -109,7 +155,10 @@ public UserResponseDTO updateUser(Long id, UserRequestDTO dto) {
         response.setPhone(user.getPhone());
 
         if (user.getRole() != null) {
-            response.setRole(user.getRole().name());
+
+            response.setRole(
+                    user.getRole().name()
+            );
         }
 
         return response;
