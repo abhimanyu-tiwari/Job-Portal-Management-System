@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -32,7 +33,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authorizationHeader =
                 request.getHeader("Authorization");
 
-        // No Authorization header
         if (authorizationHeader == null
                 || !authorizationHeader.startsWith("Bearer ")) {
 
@@ -40,21 +40,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Extract JWT
         String token =
                 authorizationHeader.substring(7);
 
-        // Validate JWT
         if (jwtService.isTokenValid(token)) {
 
             String email =
                     jwtService.extractEmail(token);
 
+            String role =
+                    jwtService.extractRole(token);
+
+            System.out.println("JWT EMAIL: " + email);
+            System.out.println("JWT ROLE: " + role);
+
+            SimpleGrantedAuthority authority =
+                    new SimpleGrantedAuthority(
+                            "ROLE_" + role
+                    );
+
+            System.out.println(
+                    "AUTHORITY: " + authority.getAuthority()
+            );
+
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             email,
                             null,
-                            List.of()
+                            List.of(authority)
                     );
 
             SecurityContextHolder

@@ -5,6 +5,8 @@ import com.abhimanyu.jobportal.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.http.HttpMethod;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
@@ -22,23 +24,14 @@ public class SecurityConfig {
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter) {
 
-        this.jwtAuthenticationFilter =
-                jwtAuthenticationFilter;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
-
-    // =========================
-    // PASSWORD ENCODER
-    // =========================
 
     @Bean
     public PasswordEncoder passwordEncoder() {
 
         return new BCryptPasswordEncoder();
     }
-
-    // =========================
-    // SECURITY FILTER CHAIN
-    // =========================
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -55,26 +48,87 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // Login public
                         .requestMatchers("/auth/**")
                         .permitAll()
 
-                        // Temporary public APIs
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/jobs",
+                                "/jobs/**"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "RECRUITER",
+                                "CANDIDATE"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/jobs"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "RECRUITER"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/jobs/**"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "RECRUITER"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/jobs/**"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "RECRUITER"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/applications"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "CANDIDATE"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/applications/**"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "RECRUITER"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/applications/**"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "RECRUITER"
+                        )
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/applications/**"
+                        )
+                        .hasRole("ADMIN")
+
                         .requestMatchers("/users/**")
-                        .permitAll()
+                        .hasRole("ADMIN")
 
-                        .requestMatchers("/jobs/**")
-                        .permitAll()
-
-                        .requestMatchers("/applications/**")
-                        .permitAll()
-
-                        // Everything else protected
                         .anyRequest()
                         .authenticated()
                 )
 
-                // JWT Filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
