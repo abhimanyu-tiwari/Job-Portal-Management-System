@@ -1,7 +1,6 @@
 package com.abhimanyu.jobportal.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public class JobRequestDTO {
 
@@ -25,9 +24,6 @@ public class JobRequestDTO {
 
     @NotBlank(message = "Skills are required")
     private String skills;
-
-    @NotNull(message = "User ID is required")
-    private Long userId;
 
     public String getTitle() {
         return title;
@@ -83,13 +79,5 @@ public class JobRequestDTO {
 
     public void setSkills(String skills) {
         this.skills = skills;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 }

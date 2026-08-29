@@ -10,6 +10,7 @@ import com.abhimanyu.jobportal.repository.JobRepository;
 import com.abhimanyu.jobportal.repository.UserRepository;
 import com.abhimanyu.jobportal.service.JobService;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,18 +29,18 @@ public class JobServiceImpl implements JobService {
         this.userRepository = userRepository;
     }
 
-    // =========================
-    // CREATE JOB
-    // =========================
-
     @Override
     public JobResponseDTO saveJob(JobRequestDTO dto) {
 
-        // Find User by userId
-        User user = userRepository.findById(dto.getUserId())
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new UserNotFoundException(
-                                "User not found with id: " + dto.getUserId()
+                                "User not found with email: " + email
                         )
                 );
 
@@ -52,13 +53,13 @@ public class JobServiceImpl implements JobService {
         job.setSalary(dto.getSalary());
         job.setJobType(dto.getJobType());
         job.setSkills(dto.getSkills());
-
         job.setPostedBy(user);
 
         Job savedJob = jobRepository.save(job);
 
-            return convertToResponseDTO(savedJob);
+        return convertToResponseDTO(savedJob);
     }
+
     @Override
     public List<JobResponseDTO> getAllJobs() {
 
@@ -67,6 +68,7 @@ public class JobServiceImpl implements JobService {
                 .map(this::convertToResponseDTO)
                 .toList();
     }
+
     @Override
     public JobResponseDTO getJobById(Long id) {
 
@@ -79,6 +81,7 @@ public class JobServiceImpl implements JobService {
 
         return convertToResponseDTO(job);
     }
+
     @Override
     public JobResponseDTO updateJob(
             Long id,
@@ -90,12 +93,28 @@ public class JobServiceImpl implements JobService {
                                 "Job not found with id: " + id
                         )
                 );
-        User user = userRepository.findById(dto.getUserId())
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new UserNotFoundException(
-                                "User not found with id: " + dto.getUserId()
+                                "User not found with email: " + email
                         )
                 );
+
+        if (existingJob.getPostedBy() == null
+                || !existingJob.getPostedBy()
+                        .getId()
+                        .equals(user.getId())) {
+
+            throw new RuntimeException(
+                    "You are not allowed to update this job"
+            );
+        }
 
         existingJob.setTitle(dto.getTitle());
         existingJob.setDescription(dto.getDescription());
@@ -104,7 +123,6 @@ public class JobServiceImpl implements JobService {
         existingJob.setSalary(dto.getSalary());
         existingJob.setJobType(dto.getJobType());
         existingJob.setSkills(dto.getSkills());
-        existingJob.setPostedBy(user);
 
         Job updatedJob = jobRepository.save(existingJob);
 
@@ -114,15 +132,38 @@ public class JobServiceImpl implements JobService {
     @Override
     public void deleteJob(Long id) {
 
-        if (!jobRepository.existsById(id)) {
+        Job existingJob = jobRepository.findById(id)
+                .orElseThrow(() ->
+                        new JobNotFoundException(
+                                "Job not found with id: " + id
+                        )
+                );
 
-            throw new JobNotFoundException(
-                    "Job not found with id: " + id
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with email: " + email
+                        )
+                );
+
+        if (existingJob.getPostedBy() == null
+                || !existingJob.getPostedBy()
+                        .getId()
+                        .equals(user.getId())) {
+
+            throw new RuntimeException(
+                    "You are not allowed to delete this job"
             );
         }
 
-        jobRepository.deleteById(id);
+        jobRepository.delete(existingJob);
     }
+
     private JobResponseDTO convertToResponseDTO(Job job) {
 
         JobResponseDTO response = new JobResponseDTO();
@@ -135,8 +176,11 @@ public class JobServiceImpl implements JobService {
         response.setSalary(job.getSalary());
         response.setJobType(job.getJobType());
         response.setSkills(job.getSkills());
+
         if (job.getPostedBy() != null) {
-            response.setUserId(job.getPostedBy().getId());
+            response.setUserId(
+                    job.getPostedBy().getId()
+            );
         }
 
         return response;

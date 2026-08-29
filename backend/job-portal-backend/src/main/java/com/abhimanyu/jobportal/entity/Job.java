@@ -31,16 +31,12 @@ public class Job {
     @Column(nullable = false)
     private String skills;
 
-    // JOB POSTED BY USER
     @ManyToOne
     @JoinColumn(name = "posted_by")
     private User postedBy;
 
-    // Default Constructor
     public Job() {
     }
-
-    // Getters and Setters
 
     public Long getId() {
         return id;
