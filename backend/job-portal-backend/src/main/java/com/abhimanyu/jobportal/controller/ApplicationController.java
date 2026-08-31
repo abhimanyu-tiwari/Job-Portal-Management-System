@@ -27,17 +27,18 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
-
     @GetMapping
     public List<ApplicationResponseDTO> getAllApplications() {
         return applicationService.getAllApplications();
     }
+
     @PostMapping
     public ApplicationResponseDTO createApplication(
             @Valid @RequestBody ApplicationRequestDTO applicationRequestDTO) {
 
         return applicationService.saveApplication(applicationRequestDTO);
     }
+
     @GetMapping("/{id}")
     public ApplicationResponseDTO getApplicationById(
             @PathVariable Long id) {
@@ -52,6 +53,7 @@ public class ApplicationController {
 
         return applicationService.updateApplicationStatus(id, status);
     }
+
     @DeleteMapping("/{id}")
     public void deleteApplication(
             @PathVariable Long id) {

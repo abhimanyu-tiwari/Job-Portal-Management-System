@@ -6,6 +6,7 @@ import com.abhimanyu.jobportal.entity.Application;
 import com.abhimanyu.jobportal.entity.Job;
 import com.abhimanyu.jobportal.entity.User;
 import com.abhimanyu.jobportal.enums.ApplicationStatus;
+import com.abhimanyu.jobportal.enums.Role;
 import com.abhimanyu.jobportal.exception.ApplicationNotFoundException;
 import com.abhimanyu.jobportal.exception.DuplicateApplicationException;
 import com.abhimanyu.jobportal.exception.JobNotFoundException;
@@ -15,6 +16,7 @@ import com.abhimanyu.jobportal.repository.JobRepository;
 import com.abhimanyu.jobportal.repository.UserRepository;
 import com.abhimanyu.jobportal.service.ApplicationService;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,20 +39,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         this.jobRepository = jobRepository;
     }
 
-    // =========================
-    // CREATE APPLICATION
-    // =========================
-
     @Override
     public ApplicationResponseDTO saveApplication(
             ApplicationRequestDTO dto) {
 
-        User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() ->
-                        new UserNotFoundException(
-                                "User not found with id: " + dto.getUserId()
-                        )
-                );
+        User user = getCurrentUser();
 
         Job job = jobRepository.findById(dto.getJobId())
                 .orElseThrow(() ->
@@ -59,10 +52,9 @@ public class ApplicationServiceImpl implements ApplicationService {
                         )
                 );
 
-        // Check duplicate application
         if (applicationRepository.existsByUserIdAndJobId(
-                dto.getUserId(),
-                dto.getJobId())) {
+                user.getId(),
+                job.getId())) {
 
             throw new DuplicateApplicationException(
                     "You have already applied for this job"
@@ -82,22 +74,39 @@ public class ApplicationServiceImpl implements ApplicationService {
         return convertToResponseDTO(savedApplication);
     }
 
-    // =========================
-    // GET ALL APPLICATIONS
-    // =========================
-
     @Override
     public List<ApplicationResponseDTO> getAllApplications() {
 
-        return applicationRepository.findAll()
-                .stream()
-                .map(this::convertToResponseDTO)
-                .toList();
-    }
+        User user = getCurrentUser();
 
-    // =========================
-    // GET APPLICATION BY ID
-    // =========================
+        if (user.getRole() == Role.ADMIN) {
+
+            return applicationRepository.findAll()
+                    .stream()
+                    .map(this::convertToResponseDTO)
+                    .toList();
+        }
+
+        if (user.getRole() == Role.CANDIDATE) {
+
+            return applicationRepository
+                    .findByUserId(user.getId())
+                    .stream()
+                    .map(this::convertToResponseDTO)
+                    .toList();
+        }
+
+        if (user.getRole() == Role.RECRUITER) {
+
+            return applicationRepository
+                    .findByJobPostedById(user.getId())
+                    .stream()
+                    .map(this::convertToResponseDTO)
+                    .toList();
+        }
+
+        return List.of();
+    }
 
     @Override
     public ApplicationResponseDTO getApplicationById(Long id) {
@@ -110,12 +119,10 @@ public class ApplicationServiceImpl implements ApplicationService {
                                 )
                         );
 
+        validateApplicationAccess(application);
+
         return convertToResponseDTO(application);
     }
-
-    // =========================
-    // UPDATE APPLICATION STATUS
-    // =========================
 
     @Override
     public ApplicationResponseDTO updateApplicationStatus(
@@ -129,6 +136,21 @@ public class ApplicationServiceImpl implements ApplicationService {
                                         "Application not found with id: " + id
                                 )
                         );
+
+        User user = getCurrentUser();
+
+        if (user.getRole() != Role.ADMIN
+                && (application.getJob() == null
+                || application.getJob().getPostedBy() == null
+                || !application.getJob()
+                        .getPostedBy()
+                        .getId()
+                        .equals(user.getId()))) {
+
+            throw new RuntimeException(
+                    "You are not allowed to update this application"
+            );
+        }
 
         ApplicationStatus applicationStatus;
 
@@ -154,10 +176,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         return convertToResponseDTO(updatedApplication);
     }
 
-    // =========================
-    // DELETE APPLICATION
-    // =========================
-
     @Override
     public void deleteApplication(Long id) {
 
@@ -169,12 +187,76 @@ public class ApplicationServiceImpl implements ApplicationService {
                                 )
                         );
 
+        User user = getCurrentUser();
+
+        if (user.getRole() != Role.ADMIN
+                && (application.getUser() == null
+                || !application.getUser()
+                        .getId()
+                        .equals(user.getId()))) {
+
+            throw new RuntimeException(
+                    "You are not allowed to delete this application"
+            );
+        }
+
         applicationRepository.delete(application);
     }
 
-    // =========================
-    // ENTITY -> RESPONSE DTO
-    // =========================
+    private User getCurrentUser() {
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with email: " + email
+                        )
+                );
+    }
+
+    private void validateApplicationAccess(
+            Application application) {
+
+        User user = getCurrentUser();
+
+        if (user.getRole() == Role.ADMIN) {
+            return;
+        }
+
+        if (user.getRole() == Role.CANDIDATE) {
+
+            if (application.getUser() == null
+                    || !application.getUser()
+                    .getId()
+                    .equals(user.getId())) {
+
+                throw new RuntimeException(
+                        "You are not allowed to access this application"
+                );
+            }
+
+            return;
+        }
+
+        if (user.getRole() == Role.RECRUITER) {
+
+            if (application.getJob() == null
+                    || application.getJob().getPostedBy() == null
+                    || !application.getJob()
+                    .getPostedBy()
+                    .getId()
+                    .equals(user.getId())) {
+
+                throw new RuntimeException(
+                        "You are not allowed to access this application"
+                );
+            }
+        }
+    }
 
     private ApplicationResponseDTO convertToResponseDTO(
             Application application) {
@@ -185,12 +267,14 @@ public class ApplicationServiceImpl implements ApplicationService {
         response.setId(application.getId());
 
         if (application.getUser() != null) {
+
             response.setUserId(
                     application.getUser().getId()
             );
         }
 
         if (application.getJob() != null) {
+
             response.setJobId(
                     application.getJob().getId()
             );
