@@ -10,8 +10,6 @@ public class ApplicationResponseDTO {
     private String status;
     private LocalDateTime appliedAt;
 
-    // Getters and Setters
-
     public Long getId() {
         return id;
     }

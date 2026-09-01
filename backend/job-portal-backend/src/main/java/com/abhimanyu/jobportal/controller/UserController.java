@@ -2,7 +2,6 @@ package com.abhimanyu.jobportal.controller;
 
 import com.abhimanyu.jobportal.dto.UserRequestDTO;
 import com.abhimanyu.jobportal.dto.UserResponseDTO;
-
 import com.abhimanyu.jobportal.service.UserService;
 
 import jakarta.validation.Valid;
@@ -35,29 +34,25 @@ public class UserController {
 
     @PostMapping
     public UserResponseDTO createUser(
-           @Valid @RequestBody UserRequestDTO userRequestDTO) {
-
-        return userService.saveUser(userRequestDTO);
+            @Valid @RequestBody UserRequestDTO dto) {
+        return userService.saveUser(dto);
     }
 
     @GetMapping("/{id}")
     public UserResponseDTO getUserById(
             @PathVariable Long id) {
-
         return userService.getUserById(id);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-
-        userService.deleteUser(id);
     }
 
     @PutMapping("/{id}")
     public UserResponseDTO updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody UserRequestDTO userRequestDTO) {
+            @Valid @RequestBody UserRequestDTO dto) {
+        return userService.updateUser(id, dto);
+    }
 
-        return userService.updateUser(id, userRequestDTO);
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
     }
 }

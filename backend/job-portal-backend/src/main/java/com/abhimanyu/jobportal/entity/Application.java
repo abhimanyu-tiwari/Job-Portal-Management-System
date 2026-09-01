@@ -22,21 +22,22 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // User who applied
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
     @ManyToOne
     @JoinColumn(name = "job_id", nullable = false)
     private Job job;
 
-    // Application Status
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status;
 
     private LocalDateTime appliedAt;
+
     public Application() {
     }
+
     public Long getId() {
         return id;
     }

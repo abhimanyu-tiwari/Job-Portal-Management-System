@@ -19,10 +19,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // =========================
-    // CONSTRUCTOR
-    // =========================
-
     public UserServiceImpl(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder) {
@@ -30,10 +26,6 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
-    // =========================
-    // CREATE USER
-    // =========================
 
     @Override
     public UserResponseDTO saveUser(UserRequestDTO dto) {
@@ -43,23 +35,18 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
-
-        // Password encryption
         user.setPassword(
                 passwordEncoder.encode(dto.getPassword())
         );
-
         user.setPhone(dto.getPhone());
-        user.setRole(Role.valueOf(dto.getRole()));
+        user.setRole(
+                Role.valueOf(dto.getRole().trim().toUpperCase())
+        );
 
         User savedUser = userRepository.save(user);
 
         return convertToResponseDTO(savedUser);
     }
-
-    // =========================
-    // GET ALL USERS
-    // =========================
 
     @Override
     public List<UserResponseDTO> getAllUsers() {
@@ -69,10 +56,6 @@ public class UserServiceImpl implements UserService {
                 .map(this::convertToResponseDTO)
                 .toList();
     }
-
-    // =========================
-    // GET USER BY ID
-    // =========================
 
     @Override
     public UserResponseDTO getUserById(Long id) {
@@ -86,27 +69,6 @@ public class UserServiceImpl implements UserService {
 
         return convertToResponseDTO(user);
     }
-
-    // =========================
-    // DELETE USER
-    // =========================
-
-    @Override
-    public void deleteUser(Long id) {
-
-        if (!userRepository.existsById(id)) {
-
-            throw new UserNotFoundException(
-                    "User not found with id: " + id
-            );
-        }
-
-        userRepository.deleteById(id);
-    }
-
-    // =========================
-    // UPDATE USER
-    // =========================
 
     @Override
     public UserResponseDTO updateUser(
@@ -123,30 +85,34 @@ public class UserServiceImpl implements UserService {
         existingUser.setFirstName(dto.getFirstName());
         existingUser.setLastName(dto.getLastName());
         existingUser.setEmail(dto.getEmail());
-
-        // Password encryption
         existingUser.setPassword(
                 passwordEncoder.encode(dto.getPassword())
         );
-
         existingUser.setPhone(dto.getPhone());
-        existingUser.setRole(Role.valueOf(dto.getRole()));
+        existingUser.setRole(
+                Role.valueOf(dto.getRole().trim().toUpperCase())
+        );
 
-        User updatedUser =
-                userRepository.save(existingUser);
+        User updatedUser = userRepository.save(existingUser);
 
         return convertToResponseDTO(updatedUser);
     }
 
-    // =========================
-    // ENTITY -> RESPONSE DTO
-    // =========================
+    @Override
+    public void deleteUser(Long id) {
 
-    private UserResponseDTO convertToResponseDTO(
-            User user) {
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException(
+                    "User not found with id: " + id
+            );
+        }
 
-        UserResponseDTO response =
-                new UserResponseDTO();
+        userRepository.deleteById(id);
+    }
+
+    private UserResponseDTO convertToResponseDTO(User user) {
+
+        UserResponseDTO response = new UserResponseDTO();
 
         response.setId(user.getId());
         response.setFirstName(user.getFirstName());
@@ -155,10 +121,7 @@ public class UserServiceImpl implements UserService {
         response.setPhone(user.getPhone());
 
         if (user.getRole() != null) {
-
-            response.setRole(
-                    user.getRole().name()
-            );
+            response.setRole(user.getRole().name());
         }
 
         return response;

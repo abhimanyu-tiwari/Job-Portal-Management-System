@@ -12,7 +12,6 @@ public class JobResponseDTO {
     private String skills;
     private Long userId;
 
-
     public Long getId() {
         return id;
     }

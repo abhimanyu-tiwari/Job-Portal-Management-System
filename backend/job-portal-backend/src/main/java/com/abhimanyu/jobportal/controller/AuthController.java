@@ -21,14 +21,10 @@ public class AuthController {
         this.authService = authService;
     }
 
-    // =========================
-    // LOGIN
-    // =========================
-
     @PostMapping("/login")
     public LoginResponseDTO login(
-            @Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+            @Valid @RequestBody LoginRequestDTO dto) {
 
-        return authService.login(loginRequestDTO);
+        return authService.login(dto);
     }
 }

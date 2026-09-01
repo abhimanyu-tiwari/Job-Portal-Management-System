@@ -4,6 +4,7 @@ import com.abhimanyu.jobportal.dto.JobRequestDTO;
 import com.abhimanyu.jobportal.dto.JobResponseDTO;
 import com.abhimanyu.jobportal.entity.Job;
 import com.abhimanyu.jobportal.entity.User;
+import com.abhimanyu.jobportal.enums.Role;
 import com.abhimanyu.jobportal.exception.JobNotFoundException;
 import com.abhimanyu.jobportal.exception.UserNotFoundException;
 import com.abhimanyu.jobportal.repository.JobRepository;
@@ -32,17 +33,7 @@ public class JobServiceImpl implements JobService {
     @Override
     public JobResponseDTO saveJob(JobRequestDTO dto) {
 
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UserNotFoundException(
-                                "User not found with email: " + email
-                        )
-                );
+        User user = getCurrentUser();
 
         Job job = new Job();
 
@@ -94,22 +85,13 @@ public class JobServiceImpl implements JobService {
                         )
                 );
 
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
+        User user = getCurrentUser();
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UserNotFoundException(
-                                "User not found with email: " + email
-                        )
-                );
-
-        if (existingJob.getPostedBy() == null
+        if (user.getRole() != Role.ADMIN
+                && (existingJob.getPostedBy() == null
                 || !existingJob.getPostedBy()
                         .getId()
-                        .equals(user.getId())) {
+                        .equals(user.getId()))) {
 
             throw new RuntimeException(
                     "You are not allowed to update this job"
@@ -139,22 +121,13 @@ public class JobServiceImpl implements JobService {
                         )
                 );
 
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
+        User user = getCurrentUser();
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UserNotFoundException(
-                                "User not found with email: " + email
-                        )
-                );
-
-        if (existingJob.getPostedBy() == null
+        if (user.getRole() != Role.ADMIN
+                && (existingJob.getPostedBy() == null
                 || !existingJob.getPostedBy()
                         .getId()
-                        .equals(user.getId())) {
+                        .equals(user.getId()))) {
 
             throw new RuntimeException(
                     "You are not allowed to delete this job"
@@ -162,6 +135,21 @@ public class JobServiceImpl implements JobService {
         }
 
         jobRepository.delete(existingJob);
+    }
+
+    private User getCurrentUser() {
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with email: " + email
+                        )
+                );
     }
 
     private JobResponseDTO convertToResponseDTO(Job job) {

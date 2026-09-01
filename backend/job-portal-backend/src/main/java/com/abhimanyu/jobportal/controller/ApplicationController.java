@@ -34,15 +34,13 @@ public class ApplicationController {
 
     @PostMapping
     public ApplicationResponseDTO createApplication(
-            @Valid @RequestBody ApplicationRequestDTO applicationRequestDTO) {
-
-        return applicationService.saveApplication(applicationRequestDTO);
+            @Valid @RequestBody ApplicationRequestDTO dto) {
+        return applicationService.saveApplication(dto);
     }
 
     @GetMapping("/{id}")
     public ApplicationResponseDTO getApplicationById(
             @PathVariable Long id) {
-
         return applicationService.getApplicationById(id);
     }
 
@@ -50,14 +48,11 @@ public class ApplicationController {
     public ApplicationResponseDTO updateApplicationStatus(
             @PathVariable Long id,
             @RequestBody String status) {
-
         return applicationService.updateApplicationStatus(id, status);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteApplication(
-            @PathVariable Long id) {
-
+    public void deleteApplication(@PathVariable Long id) {
         applicationService.deleteApplication(id);
     }
 }

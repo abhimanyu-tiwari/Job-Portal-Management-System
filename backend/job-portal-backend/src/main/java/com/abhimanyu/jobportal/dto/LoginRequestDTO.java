@@ -12,10 +12,6 @@ public class LoginRequestDTO {
     @NotBlank(message = "Password is required")
     private String password;
 
-    // =========================
-    // GETTERS AND SETTERS
-    // =========================
-
     public String getEmail() {
         return email;
     }

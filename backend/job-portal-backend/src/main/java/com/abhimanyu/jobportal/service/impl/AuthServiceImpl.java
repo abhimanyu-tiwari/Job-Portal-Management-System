@@ -18,10 +18,6 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    // =========================
-    // CONSTRUCTOR
-    // =========================
-
     public AuthServiceImpl(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
@@ -32,15 +28,9 @@ public class AuthServiceImpl implements AuthService {
         this.jwtService = jwtService;
     }
 
-    // =========================
-    // LOGIN
-    // =========================
-
     @Override
-    public LoginResponseDTO login(
-            LoginRequestDTO dto) {
+    public LoginResponseDTO login(LoginRequestDTO dto) {
 
-        // Find user by email
         User user = userRepository
                 .findByEmail(dto.getEmail())
                 .orElseThrow(() ->
@@ -49,7 +39,6 @@ public class AuthServiceImpl implements AuthService {
                         )
                 );
 
-        // Check password
         if (!passwordEncoder.matches(
                 dto.getPassword(),
                 user.getPassword())) {
@@ -59,13 +48,11 @@ public class AuthServiceImpl implements AuthService {
             );
         }
 
-        // Generate JWT
         String token = jwtService.generateToken(
                 user.getEmail(),
                 user.getRole().name()
         );
 
-        // Return login response
         return new LoginResponseDTO(
                 token,
                 user.getEmail(),

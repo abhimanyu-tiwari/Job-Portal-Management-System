@@ -34,29 +34,24 @@ public class JobController {
 
     @PostMapping
     public JobResponseDTO createJob(
-            @Valid @RequestBody JobRequestDTO jobRequestDTO) {
-
-        return jobService.saveJob(jobRequestDTO);
+            @Valid @RequestBody JobRequestDTO dto) {
+        return jobService.saveJob(dto);
     }
 
     @GetMapping("/{id}")
-    public JobResponseDTO getJobById(
-            @PathVariable Long id) {
-
+    public JobResponseDTO getJobById(@PathVariable Long id) {
         return jobService.getJobById(id);
     }
 
     @PutMapping("/{id}")
     public JobResponseDTO updateJob(
             @PathVariable Long id,
-            @Valid @RequestBody JobRequestDTO jobRequestDTO) {
-
-        return jobService.updateJob(id, jobRequestDTO);
+            @Valid @RequestBody JobRequestDTO dto) {
+        return jobService.updateJob(id, dto);
     }
 
     @DeleteMapping("/{id}")
     public void deleteJob(@PathVariable Long id) {
-
         jobService.deleteJob(id);
     }
 }

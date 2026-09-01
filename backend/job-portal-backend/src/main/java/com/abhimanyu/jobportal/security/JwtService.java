@@ -18,15 +18,10 @@ public class JwtService {
     private final SecretKey secretKey;
 
     public JwtService() {
-
         this.secretKey = Keys.hmacShaKeyFor(
                 SECRET_KEY.getBytes(StandardCharsets.UTF_8)
         );
     }
-
-    // =========================
-    // GENERATE JWT TOKEN
-    // =========================
 
     public String generateToken(
             String email,
@@ -46,10 +41,6 @@ public class JwtService {
                 .compact();
     }
 
-    // =========================
-    // EXTRACT EMAIL
-    // =========================
-
     public String extractEmail(String token) {
 
         return Jwts.parser()
@@ -59,10 +50,6 @@ public class JwtService {
                 .getPayload()
                 .getSubject();
     }
-
-    // =========================
-    // EXTRACT ROLE
-    // =========================
 
     public String extractRole(String token) {
 
@@ -74,14 +61,9 @@ public class JwtService {
                 .get("role", String.class);
     }
 
-    // =========================
-    // VALIDATE TOKEN
-    // =========================
-
     public boolean isTokenValid(String token) {
 
         try {
-
             Jwts.parser()
                     .verifyWith(secretKey)
                     .build()
@@ -90,7 +72,6 @@ public class JwtService {
             return true;
 
         } catch (Exception ex) {
-
             return false;
         }
     }

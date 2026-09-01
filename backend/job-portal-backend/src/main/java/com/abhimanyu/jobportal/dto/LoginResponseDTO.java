@@ -6,10 +6,6 @@ public class LoginResponseDTO {
     private String email;
     private String role;
 
-    // =========================
-    // CONSTRUCTOR
-    // =========================
-
     public LoginResponseDTO() {
     }
 
@@ -22,10 +18,6 @@ public class LoginResponseDTO {
         this.email = email;
         this.role = role;
     }
-
-    // =========================
-    // GETTERS AND SETTERS
-    // =========================
 
     public String getToken() {
         return token;
