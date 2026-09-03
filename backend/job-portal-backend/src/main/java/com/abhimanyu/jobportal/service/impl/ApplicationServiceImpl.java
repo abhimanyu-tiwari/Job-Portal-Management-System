@@ -7,6 +7,7 @@ import com.abhimanyu.jobportal.entity.Job;
 import com.abhimanyu.jobportal.entity.User;
 import com.abhimanyu.jobportal.enums.ApplicationStatus;
 import com.abhimanyu.jobportal.enums.Role;
+import com.abhimanyu.jobportal.exception.ApplicationAccessDeniedException;
 import com.abhimanyu.jobportal.exception.ApplicationNotFoundException;
 import com.abhimanyu.jobportal.exception.DuplicateApplicationException;
 import com.abhimanyu.jobportal.exception.JobNotFoundException;
@@ -147,7 +148,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                         .getId()
                         .equals(user.getId()))) {
 
-            throw new RuntimeException(
+            throw new ApplicationAccessDeniedException(
                     "You are not allowed to update this application"
             );
         }
@@ -163,7 +164,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         } catch (IllegalArgumentException ex) {
 
-            throw new RuntimeException(
+            throw new ApplicationAccessDeniedException(
                     "Invalid application status: " + status
             );
         }
@@ -195,7 +196,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                         .getId()
                         .equals(user.getId()))) {
 
-            throw new RuntimeException(
+            throw new ApplicationAccessDeniedException(
                     "You are not allowed to delete this application"
             );
         }
@@ -234,7 +235,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .getId()
                     .equals(user.getId())) {
 
-                throw new RuntimeException(
+                throw new ApplicationAccessDeniedException(
                         "You are not allowed to access this application"
                 );
             }
@@ -251,7 +252,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .getId()
                     .equals(user.getId())) {
 
-                throw new RuntimeException(
+                throw new ApplicationAccessDeniedException(
                         "You are not allowed to access this application"
                 );
             }
@@ -267,14 +268,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         response.setId(application.getId());
 
         if (application.getUser() != null) {
-
             response.setUserId(
                     application.getUser().getId()
             );
         }
 
         if (application.getJob() != null) {
-
             response.setJobId(
                     application.getJob().getId()
             );

@@ -12,10 +12,6 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // =========================
-    // VALIDATION EXCEPTION
-    // =========================
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleValidationException(
@@ -41,10 +37,6 @@ public class GlobalExceptionHandler {
         return response;
     }
 
-    // =========================
-    // USER NOT FOUND
-    // =========================
-
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, Object> handleUserNotFoundException(
@@ -57,10 +49,6 @@ public class GlobalExceptionHandler {
 
         return response;
     }
-
-    // =========================
-    // JOB NOT FOUND
-    // =========================
 
     @ExceptionHandler(JobNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -75,10 +63,6 @@ public class GlobalExceptionHandler {
         return response;
     }
 
-    // =========================
-    // APPLICATION NOT FOUND
-    // =========================
-
     @ExceptionHandler(ApplicationNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, Object> handleApplicationNotFoundException(
@@ -92,10 +76,6 @@ public class GlobalExceptionHandler {
         return response;
     }
 
-    // =========================
-    // DUPLICATE APPLICATION
-    // =========================
-
     @ExceptionHandler(DuplicateApplicationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleDuplicateApplicationException(
@@ -104,6 +84,19 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
 
         response.put("status", 400);
+        response.put("message", ex.getMessage());
+
+        return response;
+    }
+
+    @ExceptionHandler(ApplicationAccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, Object> handleApplicationAccessDeniedException(
+            ApplicationAccessDeniedException ex) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("status", 403);
         response.put("message", ex.getMessage());
 
         return response;
